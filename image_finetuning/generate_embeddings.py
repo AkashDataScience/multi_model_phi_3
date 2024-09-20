@@ -10,7 +10,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 model, preprocess = clip.load("ViT-B/32", device=device)
 
 # Load Instruct 150k dataset
-dataset = load_dataset("HuggingFaceM4/instruct_150k", split="train")
+dataset = load_dataset("liuhaotian/LLaVA-Instruct-150K", split="train")
 
 # Process images and store embeddings
 embeddings = {}
