@@ -9,13 +9,13 @@ from datasets import load_dataset
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model, preprocess = clip.load("ViT-B/32", device=device)
 
-# Load Instruct 150k dataset
-dataset = load_dataset("liuhaotian/LLaVA-Instruct-150K")
+# Load Instruct 150k dataset from local JSON file
+dataset = load_dataset('json', data_files='llava_instruct_150k.json', split='train')
 
 # Process images and store embeddings
 embeddings = {}
 for item in tqdm(dataset):
-    image_path = item['image']
+    image_path = os.path.join('train2017', item['image'])  # Add 'train2017' to the path
     image = preprocess(Image.open(image_path)).unsqueeze(0).to(device)
     
     with torch.no_grad():
