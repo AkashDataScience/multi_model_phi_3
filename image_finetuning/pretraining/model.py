@@ -3,6 +3,8 @@ import torch.nn as nn
 from transformers import AutoModelForCausalLM
 import numpy as np
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 class Projections(nn.Module):
     def __init__(self, clip_embed, phi_embed):
         super().__init__()
@@ -36,7 +38,7 @@ class ClipPhi3Model(nn.Module):
         text_embeds = self.phi.get_input_embeddings()(input_ids)
         
         # Load image embeddings
-        image_embeds = torch.stack([self.image_embeddings[id] for id in image_ids])
+        image_embeds = torch.stack([self.image_embeddings[id] for id in image_ids]).to(device)
         
         # Apply projection to image embeddings
         projected_image_embeds = self.projections(image_embeds)
