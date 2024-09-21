@@ -24,10 +24,12 @@ class ClipPhi3Model(nn.Module):
         self.image_embeddings = torch.load('clip_embeddings.pt')
         for key, value in self.image_embeddings.items():
             if isinstance(value, np.ndarray):
-                self.image_embeddings[key] = torch.from_numpy(value).float()
+                self.image_embeddings[key] = torch.from_numpy(value).to(torch.bfloat16)
+            else:
+                self.image_embeddings[key] = value.to(torch.bfloat16)
         
-        # Create a default embedding for missing ids
-        self.default_embedding = torch.zeros(clip_embed)
+        # Convert projections to bfloat16
+        self.projections.to(torch.bfloat16)
         
         # Freeze phi model weights
         for param in self.phi.parameters():
