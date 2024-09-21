@@ -56,8 +56,11 @@ for epoch in range(EPOCHS):
 
     for batch in tqdm(dataloader):
         image_name, input_ids, target_ids = batch
+        input_ids = input_ids.to(device)
+        target_ids = target_ids.to(device)
 
         optimizer.zero_grad()
+
 
         outputs = model(image_name, input_ids)
 
