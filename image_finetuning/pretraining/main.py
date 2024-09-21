@@ -13,7 +13,7 @@ from transformers import AutoTokenizer
 MODEL_NAME = "microsoft/phi-3-mini-4k-instruct"
 CLIP_EMBED = 512  # Adjust based on your CLIP model
 PHI_EMBED = 3072  # Adjust based on the phi-3-mini model
-BATCH_SIZE = 2
+BATCH_SIZE = 1
 EPOCHS = 3
 LEARNING_RATE = 5e-5
 WARMUP_STEPS = 100
@@ -65,7 +65,7 @@ for epoch in range(EPOCHS):
         outputs = model(image_name, input_ids)
 
         # Select the logits for all text tokens after the 5 separator tokens
-        text_token_logits = outputs.logits[:, 2:, :]  # Start from index 5 to skip separator tokens
+        text_token_logits = outputs.logits[:, 1:, :]  # Start from index 5 to skip separator tokens
 
         # Flatten the logits and target sequence for loss calculation
         text_token_logits_flat = text_token_logits.reshape(-1, text_token_logits.size(-1))
