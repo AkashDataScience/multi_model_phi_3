@@ -31,4 +31,8 @@ class ImageConversationDataset(Dataset):
         input_ids = self.tokenizer.encode(human_msg, max_length=self.max_length, truncation=True, padding='max_length', return_tensors='pt')
         target_ids = self.tokenizer.encode(ai_msg, max_length=self.max_length, truncation=True, padding='max_length', return_tensors='pt')
 
+        input_ids = input_ids.squeeze(0)
+        target_ids = target_ids.squeeze(0)
+
         return image_name, input_ids, target_ids
+
