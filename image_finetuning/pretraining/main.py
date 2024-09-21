@@ -56,7 +56,7 @@ for epoch in range(EPOCHS):
 
     for batch in tqdm(dataloader):
         image_ids = batch['image_name']
-        input_ids = batch['input_ids'].to(device).to(torch.bfloat16)
+        input_ids = batch['input_ids'].to(device)
         attention_mask = batch['attention_mask'].to(device)
 
         optimizer.zero_grad()
