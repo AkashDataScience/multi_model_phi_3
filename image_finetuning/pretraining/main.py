@@ -55,7 +55,7 @@ for epoch in range(EPOCHS):
     valid_batches = 0
 
     for batch in tqdm(dataloader):
-        image_ids = batch['image_id']
+        image_ids = batch['image_name']
         input_ids = batch['input_ids'].to(device).to(torch.bfloat16)
         attention_mask = batch['attention_mask'].to(device)
 
