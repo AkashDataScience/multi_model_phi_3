@@ -13,7 +13,7 @@ class ImageConversationDataset(Dataset):
 
     def __getitem__(self, idx):
         item = self.data[idx]
-        image_name = item['image']
+        image_name = item['id']
         conversations = item['conversations']
 
         # Randomly select an even-numbered index
