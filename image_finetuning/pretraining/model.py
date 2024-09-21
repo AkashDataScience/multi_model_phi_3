@@ -43,6 +43,9 @@ class ClipPhi3Model(nn.Module):
         # Apply projection to image embeddings
         projected_image_embeds = self.projections(image_embeds)
         
+        # Reshape projected_image_embeds to match text_embeds
+        projected_image_embeds = projected_image_embeds.unsqueeze(1)
+        
         # Combine image and text embeddings
         combined_embeds = torch.cat([projected_image_embeds, text_embeds], dim=1)
         
