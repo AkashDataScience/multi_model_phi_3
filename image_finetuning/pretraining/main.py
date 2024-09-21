@@ -13,7 +13,7 @@ from transformers import AutoTokenizer
 MODEL_NAME = "microsoft/phi-3-mini-4k-instruct"
 CLIP_EMBED = 512  # Adjust based on your CLIP model
 PHI_EMBED = 3072  # Adjust based on the phi-3-mini model
-BATCH_SIZE = 8
+BATCH_SIZE = 2
 EPOCHS = 3
 LEARNING_RATE = 5e-5
 WARMUP_STEPS = 100
@@ -55,20 +55,25 @@ for epoch in range(EPOCHS):
     valid_batches = 0
 
     for batch in tqdm(dataloader):
-        image_ids = batch['image_name']
-        input_ids = batch['input_ids'].to(device)
-        attention_mask = batch['attention_mask'].to(device)
+        image_name, input_ids, target_ids = batch
 
         optimizer.zero_grad()
 
-        logits = model(image_ids, input_ids)
+        outputs = model(image_name, input_ids)
 
-        # Shift the input_ids and logits for next token prediction
-        shift_logits = logits[..., :-1, :].contiguous()
-        shift_labels = input_ids[..., 1:].contiguous()
-        
-        # Calculate loss
-        loss = criterion(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
+        # Select the logits for all text tokens after the 5 separator tokens
+        text_token_logits = outputs  # Start from index 5 to skip separator tokens
+
+        # Construct the target sequence for text tokens, including the next token
+        # Skip the first 5 separator tokens
+        target_sequence = torch.cat([input_ids, target_ids], dim=1)
+
+        # Flatten the logits and target sequence for loss calculation
+        text_token_logits_flat = text_token_logits.reshape(-1, text_token_logits.size(-1))
+        target_sequence_flat = target_sequence.reshape(-1)
+
+        # Calculate loss over the text token sequence
+        loss = criterion(text_token_logits_flat, target_sequence_flat, ignore_index=tokenizer.eos_token)
         
         loss.backward()
         optimizer.step()

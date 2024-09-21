@@ -24,18 +24,11 @@ class ImageConversationDataset(Dataset):
         human_msg = conversations[selected_index]['value']
         ai_msg = conversations[selected_index + 1]['value']
 
-        # Tokenize the conversation
-        tokenized = self.tokenizer(
-            human_msg,
-            ai_msg,
-            truncation=True,
-            max_length=self.max_length,
-            padding='max_length',
-            return_tensors='pt'
-        )
+        # Get the human question and GPT response
+        human_msg = conversations[selected_index]['value']
+        ai_msg = conversations[selected_index + 1]['value']
 
-        return {
-            'image_name': image_name,
-            'input_ids': tokenized.input_ids.squeeze(),
-            'attention_mask': tokenized.attention_mask.squeeze()
-        }
+        input_ids = self.tokenizer.encode(human_msg).ids
+        target_ids = self.tokenizer.encode(ai_msg).ids
+
+        return image_name, input_ids, target_ids
