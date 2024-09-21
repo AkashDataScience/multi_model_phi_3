@@ -65,7 +65,7 @@ for epoch in range(EPOCHS):
         outputs = model(image_name, input_ids)
 
         # Select the logits for all text tokens after the 5 separator tokens
-        text_token_logits = outputs.logits  # Start from index 5 to skip separator tokens
+        text_token_logits = outputs.logits[:, 2:, :]  # Start from index 5 to skip separator tokens
 
         # Flatten the logits and target sequence for loss calculation
         text_token_logits_flat = text_token_logits.reshape(-1, text_token_logits.size(-1))
