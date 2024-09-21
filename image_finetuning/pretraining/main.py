@@ -50,7 +50,7 @@ for epoch in range(EPOCHS):
     epoch_loss = 0
 
     for batch in tqdm(dataloader):
-        image_ids = batch['image_name']
+        image_ids = batch['image_name'].to(device)
         input_ids = batch['input_ids'].to(device)
         attention_mask = batch['attention_mask'].to(device)
 
