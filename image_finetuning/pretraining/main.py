@@ -67,16 +67,12 @@ for epoch in range(EPOCHS):
         # Select the logits for all text tokens after the 5 separator tokens
         text_token_logits = outputs.logits  # Start from index 5 to skip separator tokens
 
-        # Construct the target sequence for text tokens, including the next token
-        # Skip the first 5 separator tokens
-        target_sequence = torch.cat([input_ids, target_ids], dim=1)
-
         # Flatten the logits and target sequence for loss calculation
         text_token_logits_flat = text_token_logits.reshape(-1, text_token_logits.size(-1))
-        target_sequence_flat = target_sequence.reshape(-1)
+        target_ids_flat = target_ids.reshape(-1)
 
         # Calculate loss over the text token sequence
-        loss = criterion(text_token_logits_flat, target_sequence_flat)
+        loss = criterion(text_token_logits_flat, target_ids_flat)
         
         loss.backward()
         optimizer.step()
