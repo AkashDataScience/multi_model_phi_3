@@ -13,7 +13,8 @@ class Projections(nn.Module):
 class ClipPhi3Model(nn.Module):
     def __init__(self, model_name, clip_embed, phi_embed):
         super().__init__()
-        self.phi = AutoModelForCausalLM.from_pretrained(model_name)
+        self.phi = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.bfloat16,
+                                                        trust_remote_code=True)
         self.projections = Projections(clip_embed, phi_embed)
         
         # Load image embeddings
