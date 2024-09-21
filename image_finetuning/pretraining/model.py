@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from transformers import AutoModelForCausalLM
+import numpy as np
 
 class Projections(nn.Module):
     def __init__(self, clip_embed, phi_embed):
@@ -17,8 +18,14 @@ class ClipPhi3Model(nn.Module):
                                                         trust_remote_code=True)
         self.projections = Projections(clip_embed, phi_embed)
         
-        # Load image embeddings
+        # Load image embeddings and convert to tensors if necessary
         self.image_embeddings = torch.load('clip_embeddings.pt')
+        for key, value in self.image_embeddings.items():
+            if isinstance(value, np.ndarray):
+                self.image_embeddings[key] = torch.from_numpy(value).float()
+        
+        # Create a default embedding for missing ids
+        self.default_embedding = torch.zeros(clip_embed)
         
         # Freeze phi model weights
         for param in self.phi.parameters():
@@ -38,7 +45,7 @@ class ClipPhi3Model(nn.Module):
         combined_embeds = torch.cat([projected_image_embeds, text_embeds], dim=1)
         
         # Pass through phi-3 model
-        outputs = self.phi(inputs_embeds=combined_embeds).logits
+        outputs = self.phi(inputs_embeds=combined_embeds)
         
         return outputs
 
