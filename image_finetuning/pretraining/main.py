@@ -61,7 +61,7 @@ for epoch in range(EPOCHS):
 
         optimizer.zero_grad()
 
-        logits = model(image_ids, input_ids, attention_mask)
+        logits = model(image_ids, input_ids)
 
         # Shift the input_ids and logits for next token prediction
         shift_logits = logits[..., :-1, :].contiguous()
