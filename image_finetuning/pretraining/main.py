@@ -43,7 +43,7 @@ scheduler = get_linear_schedule_with_warmup(
 )
 
 # Initialize loss function
-criterion = torch.nn.CrossEntropyLoss(ignore_index=tokenizer.eos_token)
+criterion = torch.nn.CrossEntropyLoss(ignore_index=tokenizer.eos_token_id)
 
 # Training loop
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
