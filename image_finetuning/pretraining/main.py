@@ -43,7 +43,7 @@ scheduler = get_linear_schedule_with_warmup(
 )
 
 # Initialize loss function
-criterion = torch.nn.CrossEntropyLoss()
+criterion = torch.nn.CrossEntropyLoss(ignore_index=tokenizer.eos_token)
 
 # Training loop
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -76,7 +76,7 @@ for epoch in range(EPOCHS):
         target_sequence_flat = target_sequence.reshape(-1)
 
         # Calculate loss over the text token sequence
-        loss = criterion(text_token_logits_flat, target_sequence_flat, ignore_index=tokenizer.eos_token)
+        loss = criterion(text_token_logits_flat, target_sequence_flat)
         
         loss.backward()
         optimizer.step()
