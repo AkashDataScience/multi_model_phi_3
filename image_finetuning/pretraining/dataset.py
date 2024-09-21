@@ -25,8 +25,7 @@ class ImageConversationDataset(Dataset):
         human_msg = conversations[selected_index]['value']
         ai_msg = conversations[selected_index + 1]['value']
 
-        input_ids = self.tokenizer.encode(human_msg).ids
-        target_ids = self.tokenizer.encode(ai_msg).ids
-
+        input_ids = self.tokenizer.encode(human_msg)
+        target_ids = self.tokenizer.encode(ai_msg)
 
         return image_name, input_ids, target_ids
