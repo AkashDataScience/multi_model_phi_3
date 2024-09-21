@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torch.optim import AdamW
 from transformers import get_linear_schedule_with_warmup
@@ -41,6 +42,9 @@ scheduler = get_linear_schedule_with_warmup(
     optimizer, num_warmup_steps=WARMUP_STEPS, num_training_steps=len(dataloader) * EPOCHS
 )
 
+# Initialize loss function
+criterion = torch.nn.CrossEntropyLoss()
+
 # Training loop
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model.train()
@@ -48,25 +52,36 @@ model.train()
 for epoch in range(EPOCHS):
     print(f"Epoch {epoch + 1}/{EPOCHS}")
     epoch_loss = 0
+    valid_batches = 0
 
     for batch in tqdm(dataloader):
-        image_ids = batch['image_name']
-        input_ids = batch['input_ids'].to(device)
+        image_ids = batch['image_id']
+        input_ids = batch['input_ids'].to(device).to(torch.bfloat16)
         attention_mask = batch['attention_mask'].to(device)
 
         optimizer.zero_grad()
 
-        outputs = model(image_ids, input_ids)
-        loss = outputs.loss
-        loss.backward()
+        logits = model(image_ids, input_ids, attention_mask)
 
+        # Shift the input_ids and logits for next token prediction
+        shift_logits = logits[..., :-1, :].contiguous()
+        shift_labels = input_ids[..., 1:].contiguous()
+        
+        # Calculate loss
+        loss = criterion(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
+        
+        loss.backward()
         optimizer.step()
         scheduler.step()
 
         epoch_loss += loss.item()
+        valid_batches += 1
 
-    avg_loss = epoch_loss / len(dataloader)
-    print(f"Average loss: {avg_loss}")
+    if valid_batches > 0:
+        avg_loss = epoch_loss / valid_batches
+        print(f"Average loss: {avg_loss}")
+    else:
+        print("No valid batches in this epoch.")
 
 # Save the trained model
 torch.save(model.state_dict(), 'trained_clip_phi3_model.pth')

@@ -51,7 +51,7 @@ class ClipPhi3Model(nn.Module):
         # Pass through phi-3 model
         outputs = self.phi(inputs_embeds=combined_embeds)
         
-        return outputs
+        return outputs.logits  # Return logits instead of the full output
 
 # Usage example:
 # model = ClipPhi3Model("microsoft/phi-2", clip_embed=512, phi_embed=2560)
