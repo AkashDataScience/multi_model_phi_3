@@ -1,3 +1,4 @@
+import time
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
@@ -51,7 +52,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model.train()
 
 for step in range(MAX_STEPS):
-    print(f"Step {step + 1}/{MAX_STEPS}")
+    t0 = time.time()
     epoch_loss = 0
     valid_batches = 0
 
@@ -79,12 +80,14 @@ for step in range(MAX_STEPS):
     loss.backward()
     optimizer.step()
     scheduler.step()
+    t1 = time.time()
+    dt = (t1 - t0) * 1000
 
     epoch_loss += loss.item()
     valid_batches += 1
 
     if step % 100 == 0:
-        print(f"Loss: {epoch_loss/valid_batches}")
+        print(f'step{step} | loss: {loss.item()} | dt: {dt:.2f}ms | lr: {scheduler.get_last_lr()[0]}')
 
 # Save the trained model
 torch.save(model.state_dict(), 'trained_clip_phi3_model.pth')
