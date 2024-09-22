@@ -3,7 +3,7 @@ from torch.utils.data import Dataset
 import random
 
 class ImageConversationDataset(Dataset):
-    def __init__(self, data, tokenizer, max_length=512):
+    def __init__(self, data, tokenizer, max_length=256):
         self.data = data
         self.tokenizer = tokenizer
         self.max_length = max_length
