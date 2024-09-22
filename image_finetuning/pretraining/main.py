@@ -13,7 +13,7 @@ from transformers import AutoTokenizer
 MODEL_NAME = "microsoft/phi-3-mini-4k-instruct"
 CLIP_EMBED = 512  # Adjust based on your CLIP model
 PHI_EMBED = 3072  # Adjust based on the phi-3-mini model
-BATCH_SIZE = 2
+BATCH_SIZE = 4
 MAX_STEPS = 3000
 LEARNING_RATE = 5e-5
 WARMUP_STEPS = 100
@@ -83,7 +83,8 @@ for step in range(MAX_STEPS):
     epoch_loss += loss.item()
     valid_batches += 1
 
-    print(f"Loss: {loss.item()}")
+    if step % 100 == 0:
+        print(f"Loss: {epoch_loss/valid_batches}")
 
 # Save the trained model
 torch.save(model.state_dict(), 'trained_clip_phi3_model.pth')
