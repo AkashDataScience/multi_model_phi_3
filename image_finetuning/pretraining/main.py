@@ -51,6 +51,8 @@ criterion = torch.nn.CrossEntropyLoss(ignore_index=tokenizer.eos_token_id)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model.train()
 
+pbar = tqdm.tqdm(total=MAX_STEPS)
+
 for step in range(MAX_STEPS):
     t0 = time.time()
     epoch_loss = 0
@@ -87,7 +89,9 @@ for step in range(MAX_STEPS):
     valid_batches += 1
 
     if step % 100 == 0:
-        print(f'step{step} | loss: {loss.item()} | dt: {dt:.2f}ms | lr: {scheduler.get_last_lr()[0]}')
+        pbar.write(f'step: {step} | loss: {loss.item()} | dt: {dt:.2f}ms | lr: {scheduler.get_last_lr()[0]}')
+    
+    pbar.update(1)
 
 # Save the trained model
 torch.save(model.state_dict(), 'trained_clip_phi3_model.pth')
