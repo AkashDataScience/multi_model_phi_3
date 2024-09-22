@@ -51,7 +51,7 @@ criterion = torch.nn.CrossEntropyLoss(ignore_index=tokenizer.eos_token_id)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model.train()
 
-pbar = tqdm.tqdm(total=MAX_STEPS)
+pbar = tqdm(total=MAX_STEPS)
 
 for step in range(MAX_STEPS):
     t0 = time.time()
