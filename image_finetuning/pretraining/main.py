@@ -59,22 +59,21 @@ for step in range(MAX_STEPS):
     valid_batches = 0
 
     
-    image_name, input_ids, target_ids = next(iter(dataloader))
-    input_ids = input_ids.to(device)
-    target_ids = target_ids.to(device)
+    image_name, token_ids = next(iter(dataloader))
+    token_ids = token_ids.to(device)
 
 
     optimizer.zero_grad()
 
 
-    outputs = model(image_name, input_ids)
+    outputs = model(image_name, token_ids)
 
     # Select the logits for all text tokens after the 5 separator tokens
     text_token_logits = outputs.logits[:, 1:, :]  # Start from index 5 to skip separator tokens
 
     # Flatten the logits and target sequence for loss calculation
     text_token_logits_flat = text_token_logits.reshape(-1, text_token_logits.size(-1))
-    target_ids_flat = target_ids.reshape(-1)
+    target_ids_flat = token_ids.reshape(-1)
 
     # Calculate loss over the text token sequence
     loss = criterion(text_token_logits_flat, target_ids_flat)

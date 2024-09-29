@@ -28,11 +28,14 @@ class ImageConversationDataset(Dataset):
         human_msg = conversations[selected_index]['value']
         ai_msg = conversations[selected_index + 1]['value']
 
-        input_ids = self.tokenizer.encode(human_msg, max_length=self.max_length, truncation=True, padding='max_length', return_tensors='pt')
-        target_ids = self.tokenizer.encode(ai_msg, max_length=self.max_length, truncation=True, padding='max_length', return_tensors='pt')
+        tokenized = self.tokenizer(
+            human_msg,
+            ai_msg,
+            truncation=True,
+            max_length=128,
+            padding='max_length',
+            return_tensors='pt'
+        )
 
-        input_ids = input_ids.squeeze(0)
-        target_ids = target_ids.squeeze(0)
-
-        return image_name, input_ids, target_ids
+        return image_name, tokenized.input_ids.squeeze(0)
 
