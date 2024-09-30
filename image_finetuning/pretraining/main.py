@@ -70,11 +70,11 @@ for step in tqdm(range(MAX_STEPS), file=sys.stdout):
 
     outputs = model(image_name, input_ids)
 
-    # # Select the logits for all text tokens after the 5 separator tokens
-    # text_token_logits = outputs.logits[:, 1:, :]  # Start from index 5 to skip separator tokens
+    # Select the logits for all text tokens after the 5 separator tokens
+    text_token_logits = outputs.logits[:, 1:, :]  # Start from index 5 to skip separator tokens
 
     # Flatten the logits and target sequence for loss calculation
-    text_token_logits_flat = outputs.logits.reshape(-1, outputs.logits.size(-1))
+    text_token_logits_flat = text_token_logits.reshape(-1, text_token_logits.size(-1))
     target_ids_flat = target_ids.reshape(-1)
 
     # Calculate loss over the text token sequence
