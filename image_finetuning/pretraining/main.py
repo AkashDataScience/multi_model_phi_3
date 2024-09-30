@@ -26,7 +26,7 @@ dataset = load_dataset('json', data_files='llava_instruct_150k.json', split='tra
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, trust_remote_code=True)
 tokenizer.pad_token = tokenizer.unk_token  # use unk rather than eos token to prevent endless generation
-tokenizer.pad_token_id = tokenizer.convert_tokens_to_ids(tokenizer.unk_token_id)
+tokenizer.pad_token_id = tokenizer.convert_tokens_to_ids(tokenizer.pad_token)
 tokenizer.padding_side = 'right'
 
 # Create ImageConversationDataset
@@ -48,7 +48,7 @@ scheduler = get_linear_schedule_with_warmup(
 )
 
 # Initialize loss function
-criterion = torch.nn.CrossEntropyLoss(ignore_index=tokenizer.eos_token_id)
+criterion = torch.nn.CrossEntropyLoss(ignore_index=tokenizer.pad_token_id)
 
 # Training loop
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
