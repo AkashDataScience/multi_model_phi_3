@@ -16,7 +16,7 @@ MODEL_NAME = "microsoft/phi-3-mini-4k-instruct"
 CLIP_EMBED = 512  # Adjust based on your CLIP model
 PHI_EMBED = 3072  # Adjust based on the phi-3-mini model
 BATCH_SIZE = 8
-MAX_STEPS = 1500
+MAX_STEPS = 1000
 LEARNING_RATE = 5e-5
 WARMUP_STEPS = 100
 
@@ -93,5 +93,5 @@ for step in tqdm(range(MAX_STEPS), file=sys.stdout):
         tqdm.write(f'step: {step} | loss: {loss.item()} | dt: {dt:.2f}ms | lr: {scheduler.get_last_lr()[0]}')
 
 # Save the trained model
-torch.save(model.state_dict(), 'trained_clip_phi3_model.pth')
+torch.save(model.projections.state_dict(), 'projections_model.pth')
 print("Training completed and model saved.")
