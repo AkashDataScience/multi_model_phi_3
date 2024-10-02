@@ -16,7 +16,7 @@ MODEL_NAME = "microsoft/phi-3-mini-4k-instruct"
 CLIP_EMBED = 512  # Adjust based on your CLIP model
 PHI_EMBED = 3072  # Adjust based on the phi-3-mini model
 BATCH_SIZE = 8
-MAX_STEPS = 1000
+EPOCHS = 3
 LEARNING_RATE = 5e-5
 WARMUP_STEPS = 100
 
@@ -44,7 +44,7 @@ optimizer = AdamW(model.projections.parameters(), lr=LEARNING_RATE)
 
 # Initialize scheduler
 scheduler = get_linear_schedule_with_warmup(
-    optimizer, num_warmup_steps=WARMUP_STEPS, num_training_steps=MAX_STEPS
+    optimizer, num_warmup_steps=WARMUP_STEPS, num_training_steps=len(dataloader) * EPOCHS
 )
 
 # Initialize loss function
@@ -54,43 +54,39 @@ criterion = torch.nn.CrossEntropyLoss(ignore_index=tokenizer.pad_token_id)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model.train()
 
-for step in tqdm(range(MAX_STEPS), file=sys.stdout):
-    t0 = time.time()
+for epoch in range(EPOCHS):
+    print(f"Epoch {epoch + 1}/{EPOCHS}")
     epoch_loss = 0
-    valid_batches = 0
 
-    
-    image_name, input_ids, target_ids = next(iter(dataloader))
-    input_ids = input_ids.to(device)
-    target_ids = target_ids.to(device)
+    pbar = tqdm(dataloader, file=sys.stdout)
 
-
-    optimizer.zero_grad()
+    for batch_idx, (image_name, input_ids, target_ids) in enumerate(pbar):
+        input_ids = input_ids.to(device)
+        target_ids = target_ids.to(device)
 
 
-    outputs = model(image_name, input_ids)
+        optimizer.zero_grad()
 
-    # Select the logits for all text tokens after the 1 separator tokens
-    text_token_logits = outputs.logits[:, 1:, :]  # Start from index 1 to skip separator tokens
 
-    # Flatten the logits and target sequence for loss calculation
-    text_token_logits_flat = text_token_logits.reshape(-1, text_token_logits.size(-1))
-    target_ids_flat = target_ids.reshape(-1)
+        outputs = model(image_name, input_ids)
 
-    # Calculate loss over the text token sequence
-    loss = criterion(text_token_logits_flat, target_ids_flat)
-    
-    loss.backward()
-    optimizer.step()
-    scheduler.step()
-    t1 = time.time()
-    dt = (t1 - t0) * 1000
+        # Select the logits for all text tokens after the 1 separator tokens
+        text_token_logits = outputs.logits[:, 1:, :]  # Start from index 1 to skip separator tokens
 
-    epoch_loss += loss.item()
-    valid_batches += 1
+        # Flatten the logits and target sequence for loss calculation
+        text_token_logits_flat = text_token_logits.reshape(-1, text_token_logits.size(-1))
+        target_ids_flat = target_ids.reshape(-1)
 
-    if step % 100 == 0:
-        tqdm.write(f'step: {step} | loss: {loss.item()} | dt: {dt:.2f}ms | lr: {scheduler.get_last_lr()[0]}')
+        # Calculate loss over the text token sequence
+        loss = criterion(text_token_logits_flat, target_ids_flat)
+        
+        loss.backward()
+        optimizer.step()
+        scheduler.step()
+        
+        epoch_loss += loss.item()
+
+        pbar.set_description(f"Loss: {epoch_loss / (batch_idx + 1):.4f} Batch_id={batch_idx}")
 
 # Save the trained model
 torch.save(model.projections.state_dict(), 'projections_model.pth')
