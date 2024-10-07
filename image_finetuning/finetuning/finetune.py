@@ -126,7 +126,7 @@ train_set, val_set = torch.utils.data.random_split(dataset, [0.9,0.1])
 
 trainer = MultimodalTrainer(model=model,
                             args=train_conf,
-                            peft_conf=peft_conf,
+                            peft_config=peft_conf,
                             train_dataset=train_set,
                             eval_dataset=val_set,
                             tokenizer=tokenizer,
