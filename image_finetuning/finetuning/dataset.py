@@ -25,6 +25,6 @@ class ImageConversationDataset(Dataset):
         image_name = item['id']
         conversations = item['text']
 
-        image_embeds = self.image_embeddings[id]
+        image_embeds = self.image_embeddings[image_name]
         
         return {"image_embeds": image_embeds, "conversations": conversations}
