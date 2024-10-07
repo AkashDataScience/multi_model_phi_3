@@ -126,7 +126,7 @@ train_set, val_set = torch.utils.data.random_split(dataset, [0.9,0.1])
 
 def collate_fn(batch):
     image_embeds = torch.stack([item['image_embeds'] for item in batch])
-    conversations_texts = [item['conversations'] for item in batch]
+    conversations_texts = [item['text'] for item in batch]
 
     batch_size = image_embeds.shape[0]
     num_image_tokens = image_embeds.shape[1]
