@@ -33,7 +33,7 @@ class Projections(nn.Module):
 
 class ClipPhi3Model(PreTrainedModel):
     def __init__(self, phi_model, clip_embed, phi_embed, projection_path=None):
-        super().__init__()
+        super().__init__(phi_model.config)
         self.phi = phi_model
         self.projections = Projections(clip_embed, phi_embed)
         if projection_path:
