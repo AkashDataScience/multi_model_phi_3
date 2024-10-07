@@ -68,4 +68,10 @@ class ClipPhi3Model(PreTrainedModel):
         outputs = self.phi(inputs_embeds=combined_embeds, attention_mask=combined_mask, labels=labels, return_dict=True)
         
         return outputs
+    
+    def gradient_checkpointing_enable(self, **kwargs):
+        self.phi.gradient_checkpointing_enable(**kwargs)
+
+    def gradient_checkpointing_disable(self):
+        self.phi.gradient_checkpointing_disable()
         
