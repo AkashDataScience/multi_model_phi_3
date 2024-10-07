@@ -4,10 +4,8 @@ import random
 import numpy as np
 
 class ImageConversationDataset(Dataset):
-    def __init__(self, data, tokenizer):
+    def __init__(self, data):
         self.data = data
-        self.tokenizer = tokenizer
-        self.max_length = tokenizer.model_max_length
         # Load image embeddings and convert to tensors if necessary
         self.image_embeddings = torch.load('clip_embeddings.pt')
 
@@ -23,8 +21,8 @@ class ImageConversationDataset(Dataset):
     def __getitem__(self, idx):
         item = self.data[idx]
         image_name = item['id']
-        conversations = item['text']
+        text = item['text']
 
         image_embeds = self.image_embeddings[image_name]
         
-        return {"image_embeds": image_embeds, "conversations": conversations}
+        return {"image_embeds": image_embeds, "text": text}

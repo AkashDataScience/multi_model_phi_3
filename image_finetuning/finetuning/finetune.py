@@ -121,7 +121,7 @@ processed_train_dataset = dataset.map(
     desc="Applying chat template to train_sft",
 )
 
-dataset = ImageConversationDataset(processed_train_dataset, tokenizer)
+dataset = ImageConversationDataset(processed_train_dataset)
 train_set, val_set = torch.utils.data.random_split(dataset, [0.9,0.1])
 
 def collate_fn(batch):
