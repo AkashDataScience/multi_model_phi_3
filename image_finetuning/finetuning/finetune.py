@@ -157,6 +157,7 @@ trainer = MultimodalTrainer(model=model,
                             peft_config=peft_conf,
                             train_dataset=train_set,
                             eval_dataset=val_set,
+                            data_collator=collate_fn,
                             tokenizer=tokenizer,
                             packing=True)
 
