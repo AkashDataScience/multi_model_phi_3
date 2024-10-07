@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from transformers import AutoModelForCausalLM
+from transformers import PreTrainedModel
 import numpy as np
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -31,7 +31,7 @@ class Projections(nn.Module):
         
         return x
 
-class ClipPhi3Model(nn.Module):
+class ClipPhi3Model(PreTrainedModel):
     def __init__(self, phi_model, clip_embed, phi_embed, projection_path=None):
         super().__init__()
         self.phi = phi_model
