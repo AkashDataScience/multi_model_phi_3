@@ -1,6 +1,6 @@
-from transformers import Trainer
+from trl import SFTTrainer
 
-class MultimodalTrainer(Trainer):
+class MultimodalTrainer(SFTTrainer):
 
     def printOutput(self, outputs):
         tokens = outputs.logits.argmax(dim=-1)
