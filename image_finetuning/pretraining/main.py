@@ -15,7 +15,7 @@ from transformers import AutoTokenizer
 MODEL_NAME = "microsoft/phi-3-mini-4k-instruct"
 CLIP_EMBED = 512  # Adjust based on your CLIP model
 PHI_EMBED = 3072  # Adjust based on the phi-3-mini model
-BATCH_SIZE = 32
+BATCH_SIZE = 16
 EPOCHS = 3
 LEARNING_RATE = 5e-5
 WARMUP_STEPS = 100

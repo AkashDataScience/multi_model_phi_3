@@ -4,7 +4,7 @@ from transformers import AutoModelForCausalLM
 import numpy as np
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
+    
 class Projections(nn.Module):
     def __init__(self, clip_embed, phi_embed, num_projection_layers=6):
         super().__init__()
@@ -32,11 +32,12 @@ class Projections(nn.Module):
         return x
 
 class ClipPhi3Model(nn.Module):
-    def __init__(self, model_name, clip_embed, phi_embed):
+    def __init__(self, phi_model, clip_embed, phi_embed, projection_path=None):
         super().__init__()
-        self.phi = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.bfloat16,
-                                                        trust_remote_code=True)
+        self.phi = phi_model
         self.projections = Projections(clip_embed, phi_embed)
+        if projection_path:
+            self.projections.load_state_dict(torch.load(projection_path, map_location=torch.device(device)), strict=False)
         
         # Load image embeddings and convert to tensors if necessary
         self.image_embeddings = torch.load('clip_embeddings.pt')
@@ -48,14 +49,10 @@ class ClipPhi3Model(nn.Module):
         
         # Convert projections to bfloat16
         self.projections.to(torch.bfloat16)
-        
-        # Freeze phi model weights
-        for param in self.phi.parameters():
-            param.requires_grad = False
-    
-    def forward(self, image_ids, input_ids):
+
+    def forward(self, image_ids, conversations_ids, conversations_mask, labels):
         # Apply embeddings to input_ids
-        text_embeds = self.phi.get_input_embeddings()(input_ids)
+        text_embeds = self.phi.get_input_embeddings()(conversations_ids)
         
         # Load image embeddings
         image_embeds = torch.stack([self.image_embeddings[id] for id in image_ids]).to(device)
@@ -65,12 +62,10 @@ class ClipPhi3Model(nn.Module):
         
         # Combine image and text embeddings
         combined_embeds = torch.cat([projected_image_embeds, text_embeds], dim=1)
+        combined_mask = torch.cat([torch.ones((projected_image_embeds.shape)), text_embeds], dim=1)
         
         # Pass through phi-3 model
-        outputs = self.phi(inputs_embeds=combined_embeds)
+        outputs = self.phi(inputs_embeds=combined_embeds, attention_mask=combined_mask, labels=labels, return_dict=True)
         
-        return outputs  # Return logits instead of the full output
-
-# Usage example:
-# model = ClipPhi3Model("microsoft/phi-2", clip_embed=512, phi_embed=2560)
-# outputs = model(image_ids=['image1', 'image2'], input_ids=torch.tensor([[1, 2, 3], [4, 5, 6]]))
+        return outputs
+        
