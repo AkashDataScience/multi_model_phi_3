@@ -1,12 +1,21 @@
 import torch
 from torch.utils.data import Dataset
 import random
+import numpy as np
 
 class ImageConversationDataset(Dataset):
     def __init__(self, data, tokenizer):
         self.data = data
         self.tokenizer = tokenizer
         self.max_length = tokenizer.model_max_length
+        # Load image embeddings and convert to tensors if necessary
+        self.image_embeddings = torch.load('clip_embeddings.pt')
+
+        for key, value in self.image_embeddings.items():
+            if isinstance(value, np.ndarray):
+                self.image_embeddings[key] = torch.from_numpy(value).to(torch.bfloat16)
+            else:
+                self.image_embeddings[key] = value.to(torch.bfloat16)
 
     def __len__(self):
         return len(self.data)
@@ -16,15 +25,6 @@ class ImageConversationDataset(Dataset):
         image_name = item['id']
         conversations = item['text']
 
-        conversations_tokens = self.tokenizer(conversations, max_length=self.max_length,
-                                              truncation=True, padding='max_length',
-                                              return_tensors='pt')
+        image_embeds = self.image_embeddings[id]
         
-        conversations_ids = conversations_tokens['input_ids']
-        conversations_mask = conversations_tokens['attention_mask']
-
-        labels = conversations_ids.clone()
-        labels[:, :-1] = conversations_ids[:, 1:]
-        
-        return {"image_name": image_name, "conversations_ids": conversations_ids,
-                "conversations_mask": conversations_mask, "labels": labels}
+        return {"image_embeds": image_embeds, "conversations": conversations}

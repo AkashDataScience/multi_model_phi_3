@@ -124,6 +124,34 @@ processed_train_dataset = dataset.map(
 dataset = ImageConversationDataset(processed_train_dataset, tokenizer)
 train_set, val_set = torch.utils.data.random_split(dataset, [0.9,0.1])
 
+def collate_fn(batch):
+    image_embeds = torch.stack([item['image_embeds'] for item in batch])
+    conversations_texts = [item['conversations'] for item in batch]
+
+    batch_size = image_embeds.shape[0]
+    num_image_tokens = image_embeds.shape[1]
+    
+    image_tokens = torch.full((batch_size, num_image_tokens), -100, dtype=torch.long)
+
+    conversations_tokens = tokenizer(conversations_texts, padding=True, truncation=True, max_length=2048, return_tensors="pt")
+    
+    conversations_ids = conversations_tokens['input_ids']
+    conversations_mask = conversations_tokens['attention_mask']
+
+    input_ids = torch.cat([image_tokens, conversations_ids], dim=1)
+    conversations_mask = torch.cat([torch.ones((batch_size, num_image_tokens), dtype=torch.long), conversations_mask], dim=1)
+
+    labels = input_ids.clone()
+    labels[:, :-1] = input_ids[:, 1:]
+    labels[:, -1] = -100  # Set the last token's label to -100 (ignored in loss calculation)
+
+    return {
+        "conversations_ids": conversations_ids,
+        "image_embeds": image_embeds,
+        "conversations_mask": conversations_mask,
+        "labels": labels
+    }
+
 trainer = MultimodalTrainer(model=model,
                             args=train_conf,
                             peft_config=peft_conf,
