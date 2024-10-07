@@ -5,7 +5,6 @@ import datasets
 from peft import LoraConfig
 import torch
 import transformers
-from trl import SFTTrainer
 from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, BitsAndBytesConfig
 from model import ClipPhi3Model
@@ -83,7 +82,6 @@ logger.warning(
 logger.info(f"Training/evaluation parameters {train_conf}")
 logger.info(f"PEFT parameters {peft_conf}")
 
-checkpoint_path = "microsoft/Phi-3-mini-4k-instruct"
 model_kwargs = dict(
     torch_dtype=torch.bfloat16,
     trust_remote_code=True,
@@ -93,12 +91,15 @@ model_kwargs = dict(
     attn_implementation='eager', 
 )
 
-phi_model = AutoModelForCausalLM.from_pretrained(checkpoint_path, **model_kwargs)
-tokenizer = AutoTokenizer.from_pretrained(checkpoint_path)
+phi_model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, **model_kwargs)
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 tokenizer.model_max_length = 2048
 tokenizer.pad_token = tokenizer.unk_token  # use unk rather than eos token to prevent endless generation
 tokenizer.pad_token_id = tokenizer.convert_tokens_to_ids(tokenizer.pad_token)
 tokenizer.padding_side = 'right'
+tokenizer.chat_template = "{% for message in messages %}{% if message['from'] == 'system' %}{{'<|system|>' + message['value'] + '<|end|>'}}{% elif message['from'] ==\
+ 'human' %}{{'<|user|>' + message['value'] + '<|end|>'}}{% elif message['from'] == 'gpt' %}{{'<|assistant|>' + message['value'] +\
+ '<|end|>'}}{% endif %}{% endfor %}{% if add_generation_prompt %}{{ '<|assistant|>' }}{% else %}{{ eos_token }}{% endif %}"
 
 model = ClipPhi3Model(phi_model, CLIP_EMBED, PHI_EMBED, 'projections_model.pth')
 
