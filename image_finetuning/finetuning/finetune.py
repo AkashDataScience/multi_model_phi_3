@@ -2,7 +2,7 @@ import sys
 import logging
 
 import datasets
-from peft import LoraConfig
+from peft import LoraConfig, get_peft_model
 import torch
 import transformers
 from datasets import load_dataset
@@ -92,6 +92,7 @@ model_kwargs = dict(
 )
 
 phi_model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, **model_kwargs)
+phi_model = get_peft_model(phi_model, peft_config)
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 tokenizer.model_max_length = 2048
 tokenizer.pad_token = tokenizer.unk_token  # use unk rather than eos token to prevent endless generation
@@ -155,12 +156,10 @@ def collate_fn(batch):
 
 trainer = MultimodalTrainer(model=model,
                             args=train_conf,
-                            peft_config=peft_conf,
                             train_dataset=train_set,
                             eval_dataset=val_set,
                             data_collator=collate_fn,
-                            tokenizer=tokenizer,
-                            packing=True)
+                            tokenizer=tokenizer)
 
 train_result = trainer.train()
 metrics = train_result.metrics

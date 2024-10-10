@@ -1,6 +1,6 @@
-from trl import SFTTrainer
+from transformers import Trainer
 
-class MultimodalTrainer(SFTTrainer):
+class MultimodalTrainer(Trainer):
 
     def compute_loss(self, model, inputs, return_outputs=False):
         outputs = model(**inputs)
