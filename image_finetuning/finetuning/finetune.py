@@ -159,7 +159,8 @@ trainer = MultimodalTrainer(model=model,
                             train_dataset=train_set,
                             eval_dataset=val_set,
                             data_collator=collate_fn,
-                            tokenizer=tokenizer)
+                            tokenizer=tokenizer,
+                            packing=True)
 
 train_result = trainer.train()
 metrics = train_result.metrics
