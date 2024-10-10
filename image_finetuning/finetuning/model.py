@@ -50,10 +50,9 @@ class ClipPhi3Model(PreTrainedModel):
         
         # Combine image and text embeddings
         combined_embeds = torch.cat([projected_image_embeds, text_embeds], dim=1)
-        combined_mask = torch.cat([torch.ones((projected_image_embeds.shape[0], projected_image_embeds.shape[1])).to(device), conversations_mask], dim=1)
         
         # Pass through phi-3 model
-        outputs = self.phi(inputs_embeds=combined_embeds, attention_mask=combined_mask, labels=labels, return_dict=True)
+        outputs = self.phi(inputs_embeds=combined_embeds, attention_mask=conversations_mask, labels=labels, return_dict=True)
         
         return outputs
     
