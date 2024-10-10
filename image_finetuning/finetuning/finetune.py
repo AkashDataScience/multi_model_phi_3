@@ -92,7 +92,7 @@ model_kwargs = dict(
 )
 
 phi_model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, **model_kwargs)
-phi_model = get_peft_model(phi_model, peft_config)
+phi_model = get_peft_model(phi_model, peft_conf)
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 tokenizer.model_max_length = 2048
 tokenizer.pad_token = tokenizer.unk_token  # use unk rather than eos token to prevent endless generation
