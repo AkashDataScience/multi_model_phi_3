@@ -36,7 +36,7 @@ class ClipPhi3Model(PreTrainedModel):
         self.phi = phi_model
         self.projections = Projections(clip_embed, phi_embed)
         if projection_path:
-            self.projections.load_state_dict(torch.load(projection_path, map_location=torch.device(device)), strict=False)
+            self.projections.load_state_dict(torch.load(projection_path, map_location=device), strict=False)
         
         # Convert projections to bfloat16
         self.projections.to(torch.bfloat16)
@@ -50,7 +50,7 @@ class ClipPhi3Model(PreTrainedModel):
         
         # Combine image and text embeddings
         combined_embeds = torch.cat([projected_image_embeds, text_embeds], dim=1)
-        combined_mask = torch.cat([torch.ones((projected_image_embeds.shape)), conversations_mask], dim=1)
+        combined_mask = torch.cat([torch.ones((projected_image_embeds.shape[0], projected_image_embeds.shape[1])).to(device), conversations_mask], dim=1)
         
         # Pass through phi-3 model
         outputs = self.phi(inputs_embeds=combined_embeds, attention_mask=combined_mask, labels=labels, return_dict=True)
