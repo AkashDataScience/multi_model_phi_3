@@ -32,7 +32,6 @@ training_config = {
     "overwrite_output_dir": True,
     "per_device_eval_batch_size": 4,
     "per_device_train_batch_size": 4,
-    "remove_unused_columns": True,
     "save_steps": 60,
     "save_total_limit": 1,
     "seed": 0,
