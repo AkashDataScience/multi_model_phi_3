@@ -125,7 +125,7 @@ processed_train_dataset = dataset.map(
 
 dataset = ImageConversationDataset(processed_train_dataset)
 train_set, val_set = torch.utils.data.random_split(dataset, [0.9,0.1])
-val_set = val_set.select(range(0, int(0.10*len(val_set))))
+val_set = torch.utils.data.dataset.Subset(val_set, range(int(0.10*len(val_set))))
 
 def collate_fn(batch):
     image_embeds = torch.stack([item['image_embeds'] for item in batch])
