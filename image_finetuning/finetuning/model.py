@@ -1,3 +1,4 @@
+import os
 import torch
 import torch.nn as nn
 from transformers import PreTrainedModel
@@ -61,4 +62,15 @@ class ClipPhi3Model(PreTrainedModel):
 
     def gradient_checkpointing_disable(self):
         self.phi.gradient_checkpointing_disable()
+
+    def save_pretrained(self, save_directory):
+        # Load the Phi-3.5 model
+        self.phi.save_pretrained(save_directory)
+
+        # Save the projector weights
+        projector_path = os.path.join(save_directory, "image_projector.pth")
+        torch.save(self.projections.state_dict(), projector_path)
+
+        # Save the config
+        self.config.save_pretrained(save_directory)
         

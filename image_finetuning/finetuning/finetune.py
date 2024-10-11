@@ -174,4 +174,4 @@ metrics["eval_samples"] = len(val_set)
 trainer.log_metrics("eval", metrics)
 trainer.save_metrics("eval", metrics)
 
-trainer.save_model(train_conf.output_dir)
+model.save_pretrained(train_conf.output_dir)
