@@ -23,17 +23,17 @@ training_config = {
     "do_eval": False,
     "learning_rate": 5.0e-06,
     "log_level": "info",
-    "logging_steps": 20,
+    "logging_steps": 100,
     "logging_strategy": "steps",
     "lr_scheduler_type": "cosine",
     "num_train_epochs": 1,
-    "max_steps": 60,
+    "max_steps": 6000,
     "output_dir": "./checkpoint_dir",
     "overwrite_output_dir": True,
-    "per_device_eval_batch_size": 4,
-    "per_device_train_batch_size": 4,
+    "per_device_eval_batch_size": 16,
+    "per_device_train_batch_size": 16,
     "remove_unused_columns": False,
-    "save_steps": 20,
+    "save_steps": 100,
     "save_total_limit": 1,
     "seed": 0,
     "gradient_checkpointing": True,
@@ -125,7 +125,7 @@ processed_train_dataset = dataset.map(
 
 dataset = ImageConversationDataset(processed_train_dataset)
 train_set, val_set = torch.utils.data.random_split(dataset, [0.9,0.1])
-val_set = torch.utils.data.dataset.Subset(val_set, range(int(0.10*len(val_set))))
+val_set = torch.utils.data.dataset.Subset(val_set, range(int(0.20*len(val_set))))
 
 def collate_fn(batch):
     image_embeds = torch.stack([item['image_embeds'] for item in batch])
