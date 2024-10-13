@@ -102,7 +102,7 @@ python finetuning/finetune.py
 ```
 
 ## Future improvements
-* Approach to train projection layer can be improved (Training loss decreases from 12 to 6, but hets stuck at 6)
+* Approach to train projection layer can be improved (Training loss decreases from 12 to 6, but gets stuck at 6)
 * Adding inferece after every few steps might be helpful to see what model is learning.
 * Small paches of image can be passed instead of passing full image.
 * Instead of finetuning only on image-instruct data, multiple datasources can be used to finetune model.
